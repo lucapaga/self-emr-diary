@@ -6,8 +6,8 @@
 
 . ./set-vars.sh ${1}
 
-echo "Selecting working subscription: ${SUBSCRIPTION} ..." 
-az account set --subscription ${SUBSCRIPTION}
+# echo "Selecting working subscription: ${SUBSCRIPTION} ..." 
+# az account set --subscription ${SUBSCRIPTION}
 
 echo "Creating Container APP ${CAPP_NAME} (with default Microsoft image) ..."
 az containerapp create -n ${CAPP_NAME} -g ${RG} --environment ${CAPP_ENV_NAME} --system-assigned --registry-server ${AZURE_CR_NAME}.azurecr.io --registry-identity system
@@ -30,6 +30,7 @@ echo "Updating CAPP ${CAPP_NAME} to proper image (${DOCKER_IMAGE_NAME}:${DOCKER_
 az containerapp update -n ${CAPP_NAME} -g ${RG} \
     --image ${AZURE_CR_NAME}.azurecr.io/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} \
     --set-env-vars \
+        DOLLAR="$" \
         userprofile_server_fqdn='http://m-userprofile.internal.purpleriver-5bb74605.westeurope.azurecontainerapps.io' 
 
 echo "Enabling internal ingress ..."
