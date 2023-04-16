@@ -7,10 +7,11 @@ AZURE_CR_NAME=daia2023paganelli
 export AZURE_CR_NAME
 export DOCKER_REGISTRY=${AZURE_CR_NAME}.azurecr.io
 
-export CAPP_NAME=webapp
+export CAPP_NAME=m-userprofile
 export CAPP_ENV_NAME=capp-selfemrdiary-dev
 
 export DOCKER_IMAGE_NAME=self-emf-diary/${CAPP_NAME}
+export DOCKER_EXPOSED_SERVER_PORT=3001
 
 if [ -n "$1" ]
 then

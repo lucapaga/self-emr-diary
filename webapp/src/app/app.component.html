@@ -6,8 +6,9 @@
   </span>
   <span class="toolbar-title-rightbtns-spacer"></span>
   <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon"
-    routerLink="/service-health">
-    <mat-icon>monitor_heart</mat-icon>
+    (click)="displayUserProfileDialog()"
+    *ngIf="userProfile">
+    <mat-icon>account_circle</mat-icon>
   </button>
 </mat-toolbar>
 

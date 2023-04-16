@@ -19,14 +19,15 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 // import { MarkdownModule } from 'ngx-markdown';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import { AppComponent, DisplayUserprofileDialog } from './app.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent, DisplayUserprofileDialog
   ],
   imports: [
     BrowserModule,
@@ -37,7 +38,8 @@ import { AppComponent } from './app.component';
     MatToolbarModule, MatIconModule, MatButtonModule, MatListModule, MatCardModule,
     MatGridListModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatTreeModule,
     MatExpansionModule, MatChipsModule,
-    MatProgressBarModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule
+    MatProgressBarModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule,
+    MatDialogModule
     // ,MarkdownModule.forRoot()
   ],
   providers: [],

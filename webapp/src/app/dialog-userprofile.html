@@ -1,0 +1,59 @@
+<h1 mat-dialog-title>
+    Ciao, {{data.userProfile.principal?.displayName}}
+</h1>
+<div mat-dialog-content>
+    <mat-list *ngIf="data.userProfile && data.userProfile.principal">
+        <!-- <mat-list-item *ngIf="data.userProfile.principal.displayName">
+            <span matListItemTitle>
+                {{data.userProfile.principal.displayName}}
+            </span>
+            <span matListItemLine>Nome/Cognome</span>
+        </mat-list-item> -->
+        <mat-list-item *ngIf="data.userProfile.principal.roles">
+            <span matListItemTitle>
+                {{data.userProfile.principal.roles}}
+            </span>
+            <span matListItemLine>Ruoli</span>
+        </mat-list-item>
+        <mat-list-item *ngIf="data.userProfile.principal.username">
+            <span matListItemTitle>
+                {{data.userProfile.principal.username}}
+            </span>
+            <span matListItemLine>User Principal's USERNAME</span>
+        </mat-list-item>
+        <mat-list-item *ngIf="data.userProfile.principal.name">
+            <span matListItemTitle>
+                {{data.userProfile.principal.name}}
+            </span>
+            <span matListItemLine>User Principal's NAME</span>
+        </mat-list-item>
+        <mat-list-item *ngIf="data.userProfile.principal.id">
+            <span matListItemTitle>
+                {{data.userProfile.principal.id}}
+            </span>
+            <span matListItemLine>User Principal's ID</span>
+        </mat-list-item>
+        <mat-list-item *ngIf="data.userProfile.principal.userGUID">
+            <span matListItemTitle>
+                {{data.userProfile.principal.userGUID}}
+            </span>
+            <span matListItemLine>User Principal's GUID</span>
+        </mat-list-item>
+        <mat-list-item *ngIf="data.userProfile.principal.tenantGUID">
+            <span matListItemTitle>
+                {{data.userProfile.principal.tenantGUID}}
+            </span>
+            <span matListItemLine>User Principal's TENANT GUID</span>
+        </mat-list-item>
+        <mat-list-item *ngIf="data.userProfile.principal.aud">
+            <span matListItemTitle>
+                {{data.userProfile.principal.aud}}
+            </span>
+            <span matListItemLine>User Principal's AUD</span>
+        </mat-list-item>
+    </mat-list>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="closeDialog()">Chiudi</button>
+    <!-- <button mat-button [mat-dialog-close]="data.animal" cdkFocusInitial>Ok</button> -->
+</div>
