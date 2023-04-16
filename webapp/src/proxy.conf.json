@@ -1,0 +1,20 @@
+{
+    // "/heradm/api/dataproduct": {
+    //     "logger": "console",
+    //     "logLevel": "debug",
+    //     "target": "https://heradmpyfnapr001.azurewebsites.net/",
+    //     "changeOrigin": true,
+    //     "xfwd": true,
+    //     "pathRewrite": {
+    //         "heradm/": ""
+    //     },
+    //     "headers": {
+    //         "x-functions-key": "H4C9G0tlHpVHybQ3dNC49K7zG9WYwCoW6dfc5n4RmWgIAzFukBijUQ=="
+    //     }
+    // },
+    // "/purview": {
+    //     "target": "http://localhost:3004",
+    //     "secure": false,
+    //     "logLevel": "debug"
+    // }
+}
