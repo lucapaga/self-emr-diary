@@ -1,0 +1,12 @@
+.dwn-matter {
+    width: calc(50% - 10px);
+}
+
+.dwn-measure {
+    width: calc(50% - 10px);
+    margin-left: 10px;
+}
+
+.txt-registrazione {
+    width: calc(100% - 10px);
+}

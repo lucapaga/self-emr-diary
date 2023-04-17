@@ -1,0 +1,32 @@
+<div>
+    <mat-form-field class="dwn-matter" appearance="fill">
+        <mat-label>Materiale</mat-label>
+        <input type="text" [(ngModel)]="recordingMatter" matInput [matAutocomplete]="dwnMatterID" (ngModelChange)="onMatterChange()">
+        <mat-autocomplete autoActiveFirstOption #dwnMatterID="matAutocomplete">
+            <mat-option *ngFor="let option of dwnMatterOptions" [value]="option">
+                {{option}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field class="dwn-measure" appearance="fill">
+        <mat-label>Misurazione</mat-label>
+        <input type="text" [(ngModel)]="recordingMeasure" matInput [matAutocomplete]="dwnMeasureID" (ngModelChange)="onMeasureChange()">
+        <mat-autocomplete autoActiveFirstOption #dwnMeasureID="matAutocomplete">
+            <mat-option *ngFor="let option of dwnMeasureOptions" [value]="option">
+                {{option}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+</div>
+<mat-form-field class="txt-registrazione">
+    <mat-label>Registrazione</mat-label>
+    <input type="text" [(ngModel)]="recordingValue" matInput [matAutocomplete]="dwnRecordingID">
+    <mat-autocomplete autoActiveFirstOption #dwnRecordingID="matAutocomplete">
+        <mat-option *ngFor="let option of dwnRecordingOptions" [value]="option">
+            {{option}}
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
+<div>
+    <button mat-flat-button color="primary" (click)="saveRecording()" [disabled]="!recordingValue">Inserisci</button>
+</div>

@@ -20,14 +20,18 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+
 // import { MarkdownModule } from 'ngx-markdown';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent, DisplayUserprofileDialog } from './app.component';
+import { RecordMgmtComponent } from './c/record-mgmt/record-mgmt.component';
+import { LandingPageComponent } from './c/landing-page/landing-page.component';
 
 @NgModule({
   declarations: [
-    AppComponent, DisplayUserprofileDialog
+    AppComponent, DisplayUserprofileDialog, RecordMgmtComponent, LandingPageComponent
   ],
   imports: [
     BrowserModule,
@@ -39,7 +43,7 @@ import { AppComponent, DisplayUserprofileDialog } from './app.component';
     MatGridListModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatTreeModule,
     MatExpansionModule, MatChipsModule,
     MatProgressBarModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule,
-    MatDialogModule
+    MatDialogModule, MatAutocompleteModule
     // ,MarkdownModule.forRoot()
   ],
   providers: [],
