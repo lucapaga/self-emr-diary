@@ -7,6 +7,8 @@ Qualche parola descrittiva
 
 ## npm depz (not bundled by Nest automatically)
 
+Se copi-incolli il template ricorda di lanciare prima di tutto il comando `npm i`.
+
 Le seguenti add-on sono utili:
  - **@nestjs/swagger**: produce automaticamente il F/E swagger ed il JSON openapi
  - **@nestjs/platform-express**: per servire contenuti statici
