@@ -14,7 +14,7 @@ class InnerRecordingCosmosDTO {
 }
 
 class DiaryRecordingCosmosDTO {
-    id?:string;
+    id?: string;
     matter?: string;
     measure?: string;
     cluster?: string;
@@ -39,6 +39,33 @@ export class RecordingService {
         } catch (error) {
             this.logger.error("Unable to create CosmosClient, this will prevent m-diary to work properly", error);
         }
+    }
+
+    async fetchRecordings(
+        up: ClientPrincipal,
+        top_k: number = 10
+    ): Promise<DiaryRecording[]> {
+        return new Promise((ret, rej) => {
+            try {
+                var qryStr: string = "SELECT TOP " + top_k + " r FROM r ";
+                if (up && up.userGUID) {
+                    qryStr = qryStr + "WHERE r.user.id = \"" + up.userGUID + "\" ";
+                }
+                qryStr = qryStr + "ORDER BY r.recording.datetime DESC ";
+                this.logger.debug(`Built query >${qryStr}<`);
+                this.cosmosContainer.items
+                    .query(qryStr)
+                    .fetchAll()
+                    .then((cosmosReturn) => {
+                        ret(cosmosReturn.resources.map((item) => { return this._buildFromCosmosDTO(item.r, up); }));
+                    });
+            } catch (error) {
+                this.logger.error("Unable to fetch diary recordings");
+                this.logger.error(error);
+                throw error
+            }
+        });
+
     }
 
     async createOrUpdateRecording(dr: DiaryRecording): Promise<DiaryRecording> {
@@ -72,7 +99,7 @@ export class RecordingService {
         }
 
         ret.user = userProfile;
-        
+
         return ret;
     }
 

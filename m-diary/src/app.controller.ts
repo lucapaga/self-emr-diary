@@ -49,16 +49,35 @@ export class AppController {
     @Headers("x-ms-client-principal") base64ClientPrincipal: string,
     @Query("cluster") cluster: string,
     @Query("t_from") tFrom: string,
-    @Query("t_to") tTo: string
+    @Query("t_to") tTo: string,
+    @Query("top_k") topK: string
   ): Promise<LoadRecordingsResponse> {
     const up: ClientPrincipal = this.userProfileService.buildClientPrincipal(base64ClientPrincipal);
     var ret: LoadRecordingsResponse = new LoadRecordingsResponse();
+    const frr = await this.diaryService.fetchRecordings(up, this._parseTopKParameter(topK))
+    ret.records = frr.map((dr:DiaryRecording) => { return this._buildResponseDTOFrom(dr); });
+    ret.status = "OK";
+    // ret.records = [];
     return ret;
+  }
+
+  private _parseTopKParameter(topK: string): number {
+    try {
+      const nr:number = parseInt(topK);
+      if(!Number.isNaN(nr)) {
+        return nr;
+      } else {
+        return 10;
+      }
+    } catch (error) {
+      // default value
+      return 10;
+    }
   }
 
 
   private _buildResponseDTOFrom(savedDR: DiaryRecording): DiaryRecord {
-    var ret:DiaryRecord = new DiaryRecord();
+    var ret: DiaryRecord = new DiaryRecord();
     ret.guid = savedDR.guid;
     ret.matter = savedDR.matter;
     ret.measure = savedDR.measure;
@@ -71,13 +90,13 @@ export class AppController {
   }
 
   private _buildFromRequestDTO(record: DiaryRecord, up: ClientPrincipal): DiaryRecording {
-    var ret:DiaryRecording = new DiaryRecording();
+    var ret: DiaryRecording = new DiaryRecording();
     ret.guid = record.guid;
     ret.matter = record.matter;
     ret.measure = record.measure;
     ret.cluster = record.cluster;
     ret.status = record.status;
-    if(record.recording) {
+    if (record.recording) {
       ret.datetime = record.recording.datetime;
       ret.value = record.recording.value;
     }
