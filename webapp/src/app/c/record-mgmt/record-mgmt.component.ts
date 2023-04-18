@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +13,7 @@ import { DiaryRecordViewModel } from '../../vm/diary-vm';
   templateUrl: './record-mgmt.component.html',
   styleUrls: ['./record-mgmt.component.css']
 })
-export class RecordMgmtComponent implements AfterViewInit {
+export class RecordMgmtComponent implements AfterViewInit, OnInit {
 
   // public dwnMatterFormControl = new FormControl('');
   public dwnMatterOptions: string[] = ['Urine', 'Parametri Corporei'];
@@ -37,6 +37,27 @@ export class RecordMgmtComponent implements AfterViewInit {
     private readonly diaryService: DiaryService,
     private snackBarRef: MatSnackBar
   ) { }
+
+  async ngOnInit() {
+    try {
+      this.diaryService
+        .fetchRecordings()
+        .subscribe((lRecordings: DiaryRecord[]) => {
+          // this._updateRecordingTable(savedRecording);
+          this.tblRecordingsList = lRecordings.map((aRec) => { return this._buildDiaryRecordViewModelFrom(aRec) });
+          this.tblRecordingsDataSource.data = this.tblRecordingsList;
+        });
+    } catch (error) {
+      console.error("Unable to load saved recordings");
+      this.snackBarRef.open(
+        'Non sono riuscito a caricare le registrazioni',
+        undefined,
+        {
+          duration: 2000
+        }
+      );
+    }
+  }
 
   ngAfterViewInit() {
     // this.tblRecordingsDataSource.paginator = this.tblRecordingsPaginator;
@@ -122,40 +143,40 @@ export class RecordMgmtComponent implements AfterViewInit {
       this.executingSaveRecording = false;
     }
   }
-  
-  public getTBLRecordingsTotalValue():number {
+
+  public getTBLRecordingsTotalValue(): number {
     return this.tblRecordingsList
-    .map(r => {
-      if(r && r.diaryRecord && r.diaryRecord.recording && r.diaryRecord.recording.value) {
-        if(typeof r.diaryRecord.recording.value === "number") {
-          return r.diaryRecord.recording.value as number;
+      .map(r => {
+        if (r && r.diaryRecord && r.diaryRecord.recording && r.diaryRecord.recording.value) {
+          if (typeof r.diaryRecord.recording.value === "number") {
+            return r.diaryRecord.recording.value as number;
+          }
         }
-      }
-      try {
-        return parseFloat(r.diaryRecord?.recording?.value as string);
-      } catch (error) {
-        return 0;
-      }
-    }).reduce((acc, value) => acc + value, 0);
+        try {
+          return parseFloat(r.diaryRecord?.recording?.value as string);
+        } catch (error) {
+          return 0;
+        }
+      }).reduce((acc, value) => acc + value, 0);
   }
 
   private _updateRecordingTable(savedRecording: DiaryRecord) {
     this.tblRecordingsList.push(this._buildDiaryRecordViewModelFrom(savedRecording));
-    this.tblRecordingsDataSource.data = this.tblRecordingsList; 
+    this.tblRecordingsDataSource.data = this.tblRecordingsList;
   }
 
-  private _buildDiaryRecordViewModelFrom(savedRecording: DiaryRecord):DiaryRecordViewModel {
-    var recVM:DiaryRecordViewModel = new DiaryRecordViewModel();
-    recVM.diaryRecord=savedRecording;
-    recVM.matterIcon=this._lookupMatterIcon(savedRecording.matter);
-    recVM.measureIcon=this._lookupMeasureIcon(savedRecording.measure);
+  private _buildDiaryRecordViewModelFrom(savedRecording: DiaryRecord): DiaryRecordViewModel {
+    var recVM: DiaryRecordViewModel = new DiaryRecordViewModel();
+    recVM.diaryRecord = savedRecording;
+    recVM.matterIcon = this._lookupMatterIcon(savedRecording.matter);
+    recVM.measureIcon = this._lookupMeasureIcon(savedRecording.measure);
     return recVM;
   }
 
   private _lookupMeasureIcon(measure: string | undefined): string | undefined {
     return "water";
   }
-  
+
   private _lookupMatterIcon(matter: string | undefined): string | undefined {
     return "wc";
   }
