@@ -5,8 +5,8 @@ import { RecordMgmtComponent } from './c/record-mgmt/record-mgmt.component';
 
 const routes: Routes = [
   { path: "welcome", component: LandingPageComponent },
-  { path: "diary", component: RecordMgmtComponent },
-  { path: "", redirectTo: "diary", pathMatch: "full" }
+  { path: "diary-recz", component: RecordMgmtComponent },
+  { path: "", redirectTo: "diary-recz", pathMatch: "full" }
 ];
 
 @NgModule({
