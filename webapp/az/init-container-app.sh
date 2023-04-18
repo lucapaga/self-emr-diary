@@ -31,7 +31,8 @@ az containerapp update -n ${CAPP_NAME} -g ${RG} \
     --image ${AZURE_CR_NAME}.azurecr.io/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} \
     --set-env-vars \
         DOLLAR="$" \
-        userprofile_server_fqdn='http://m-userprofile.internal.purpleriver-5bb74605.westeurope.azurecontainerapps.io' 
+        userprofile_server_fqdn='http://m-userprofile.internal.purpleriver-5bb74605.westeurope.azurecontainerapps.io' \
+        diary_server_fqdn='http://m-diary.internal.purpleriver-5bb74605.westeurope.azurecontainerapps.io'
 
 echo "Enabling internal ingress ..."
 az containerapp ingress enable -n ${CAPP_NAME} -g ${RG} --type external --target-port 80
