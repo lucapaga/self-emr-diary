@@ -10,3 +10,17 @@
 .txt-registrazione {
     width: calc(100% - 10px);
 }
+
+.tbl-recordings-xt-container {
+    margin-top: 20px;
+    height: calc(100vh - 300px);
+    overflow: auto;
+}
+
+.tbl-recordings-td-align-right {
+    text-align: right;
+}
+
+.tbl-recordings-td-align-center {
+    text-align: center;
+}

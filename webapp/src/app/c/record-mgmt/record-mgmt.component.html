@@ -1,7 +1,8 @@
 <div>
     <mat-form-field class="dwn-matter" appearance="fill">
         <mat-label>Materiale</mat-label>
-        <input type="text" [(ngModel)]="recordingMatter" matInput [matAutocomplete]="dwnMatterID" (ngModelChange)="onMatterChange()">
+        <input type="text" [(ngModel)]="recordingMatter" [disabled]="executingSaveRecording===true" matInput
+            [matAutocomplete]="dwnMatterID" (ngModelChange)="onMatterChange()">
         <mat-autocomplete autoActiveFirstOption #dwnMatterID="matAutocomplete">
             <mat-option *ngFor="let option of dwnMatterOptions" [value]="option">
                 {{option}}
@@ -10,7 +11,8 @@
     </mat-form-field>
     <mat-form-field class="dwn-measure" appearance="fill">
         <mat-label>Misurazione</mat-label>
-        <input type="text" [(ngModel)]="recordingMeasure" matInput [matAutocomplete]="dwnMeasureID" (ngModelChange)="onMeasureChange()">
+        <input type="text" [(ngModel)]="recordingMeasure" [disabled]="executingSaveRecording===true" matInput
+            [matAutocomplete]="dwnMeasureID" (ngModelChange)="onMeasureChange()">
         <mat-autocomplete autoActiveFirstOption #dwnMeasureID="matAutocomplete">
             <mat-option *ngFor="let option of dwnMeasureOptions" [value]="option">
                 {{option}}
@@ -20,7 +22,8 @@
 </div>
 <mat-form-field class="txt-registrazione">
     <mat-label>Registrazione</mat-label>
-    <input type="text" [(ngModel)]="recordingValue" matInput [matAutocomplete]="dwnRecordingID">
+    <input type="text" [(ngModel)]="recordingValue" [disabled]="executingSaveRecording===true" matInput
+        [matAutocomplete]="dwnRecordingID">
     <mat-autocomplete autoActiveFirstOption #dwnRecordingID="matAutocomplete">
         <mat-option *ngFor="let option of dwnRecordingOptions" [value]="option">
             {{option}}
@@ -28,5 +31,54 @@
     </mat-autocomplete>
 </mat-form-field>
 <div>
-    <button mat-flat-button color="primary" (click)="saveRecording()" [disabled]="!recordingValue">Inserisci</button>
+    <button mat-flat-button color="primary" (click)="saveRecording()"
+        [disabled]="!recordingValue || executingSaveRecording===true">Inserisci</button>
+    <mat-spinner *ngIf="executingSaveRecording" mode="indeterminate" diameter="30"></mat-spinner>
+</div>
+
+<div *ngIf="tblRecordingsList && tblRecordingsList.length > 0" class="tbl-recordings-xt-container mat-elevation-z5">
+    <table mat-table [dataSource]="tblRecordingsDataSource">
+        <ng-container matColumnDef="matter">
+            <th mat-header-cell *matHeaderCellDef>Materia</th>
+            <td mat-cell *matCellDef="let element" class="tbl-recordings-td-align-center">
+                <mat-icon [fontIcon]="element.matterIcon" *ngIf="element.matterIcon"></mat-icon>
+                <span *ngIf="!element.matterIcon">
+                    {{element.diaryRecord.matter}}
+                </span>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+        <ng-container matColumnDef="measure">
+            <th mat-header-cell *matHeaderCellDef>Misura</th>
+            <td mat-cell *matCellDef="let element" class="tbl-recordings-td-align-center">
+                <mat-icon [fontIcon]="element.measureIcon" *ngIf="element.measureIcon"></mat-icon>
+                <span *ngIf="!element.measureIcon">
+                    {{element.diaryRecord.measure}}
+                </span>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+        <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Valore</th>
+            <td mat-cell *matCellDef="let element" class="tbl-recordings-td-align-right">
+                {{element.diaryRecord.recording.value}}
+            </td>
+            <td mat-footer-cell *matFooterCellDef class="tbl-recordings-td-align-right">
+                <b>
+                    {{getTBLRecordingsTotalValue()}}
+                </b>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="datetime">
+            <th mat-header-cell *matHeaderCellDef>Data/Ora</th>
+            <td mat-cell *matCellDef="let element">
+                {{element.diaryRecord.recording.datetime | date:'shortTime'}}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+        <!--  -->
+        <tr mat-header-row *matHeaderRowDef="tblRecordingsColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: tblRecordingsColumns;"></tr>
+        <tr mat-footer-row *matFooterRowDef="tblRecordingsColumns; sticky: true"></tr>
+    </table>
 </div>

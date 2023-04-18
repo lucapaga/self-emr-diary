@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
-// import { FormControl } from '@angular/forms';
-import { BareRecording, DiaryRecord } from 'src/app/e/diary';
-import { ConfigurationsService } from 'src/app/s/configurations.service';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
+
+import { BareRecording, DiaryRecord } from '../../e/diary';
+import { ConfigurationsService } from '../../s/configurations.service';
 import { DiaryService } from '../../s/diary.service';
+import { DiaryRecordViewModel } from '../../vm/diary-vm';
 
 @Component({
   selector: 'app-record-mgmt',
   templateUrl: './record-mgmt.component.html',
   styleUrls: ['./record-mgmt.component.css']
 })
-export class RecordMgmtComponent {
+export class RecordMgmtComponent implements AfterViewInit {
 
   // public dwnMatterFormControl = new FormControl('');
   public dwnMatterOptions: string[] = ['Urine', 'Parametri Corporei'];
@@ -20,10 +24,23 @@ export class RecordMgmtComponent {
   public recordingMeasure: string = "Volume";
   public recordingValue?: string;
 
+  public executingSaveRecording: boolean = false;
+
+  public tblRecordingsColumns: string[] = ["datetime", "matter", "measure", "value"];
+  public tblRecordingsDataSource = new MatTableDataSource<DiaryRecordViewModel>([]);
+  public tblRecordingsList: DiaryRecordViewModel[] = [];
+  // @ViewChild(MatPaginator) tblRecordingsPaginator: MatPaginator;
+
+
   constructor(
     private readonly configuService: ConfigurationsService,
-    private readonly diaryService: DiaryService
+    private readonly diaryService: DiaryService,
+    private snackBarRef: MatSnackBar
   ) { }
+
+  ngAfterViewInit() {
+    // this.tblRecordingsDataSource.paginator = this.tblRecordingsPaginator;
+  }
 
   public onMatterChange(): void {
     console.log("Mattter has changed: " + this.recordingMatter);
@@ -75,19 +92,72 @@ export class RecordMgmtComponent {
 
   public async saveRecording(): Promise<void> {
     console.log(`OK, going to save >${this.recordingValue}< recording value`);
-    if(!this.recordingValue) {
+    if (!this.recordingValue) {
       return;
     }
-    
-    this.diaryService.saveRecording(
-      this._buildRecordingFrom(
-        this.recordingMatter,
-        this.recordingMeasure,
-        this.recordingValue
-      )
-    ).subscribe((savedRecording) => {
-      console.log(`Recording successfully saved! GUID >${savedRecording.guid}<`);
-    });
+
+    this.executingSaveRecording = true;
+    try {
+      this.diaryService.saveRecording(
+        this._buildRecordingFrom(
+          this.recordingMatter,
+          this.recordingMeasure,
+          this.recordingValue
+        )
+      ).subscribe((savedRecording) => {
+        console.log(`Recording successfully saved! GUID >${savedRecording.guid}<`);
+        this.recordingValue = "";
+        this._updateRecordingTable(savedRecording);
+        this.executingSaveRecording = false;
+      });
+    } catch (error) {
+      console.error("Something went wrong while saving recording", error);
+      this.snackBarRef.open(
+        'Non sono riuscito ad effettuare la registrazione',
+        undefined,
+        {
+          duration: 2000
+        }
+      );
+      this.executingSaveRecording = false;
+    }
+  }
+  
+  public getTBLRecordingsTotalValue():number {
+    return this.tblRecordingsList
+    .map(r => {
+      if(r && r.diaryRecord && r.diaryRecord.recording && r.diaryRecord.recording.value) {
+        if(typeof r.diaryRecord.recording.value === "number") {
+          return r.diaryRecord.recording.value as number;
+        }
+      }
+      try {
+        return parseFloat(r.diaryRecord?.recording?.value as string);
+      } catch (error) {
+        return 0;
+      }
+    }).reduce((acc, value) => acc + value, 0);
+  }
+
+  private _updateRecordingTable(savedRecording: DiaryRecord) {
+    this.tblRecordingsList.push(this._buildDiaryRecordViewModelFrom(savedRecording));
+    this.tblRecordingsDataSource.data = this.tblRecordingsList; 
+  }
+
+  private _buildDiaryRecordViewModelFrom(savedRecording: DiaryRecord):DiaryRecordViewModel {
+    var recVM:DiaryRecordViewModel = new DiaryRecordViewModel();
+    recVM.diaryRecord=savedRecording;
+    recVM.matterIcon=this._lookupMatterIcon(savedRecording.matter);
+    recVM.measureIcon=this._lookupMeasureIcon(savedRecording.measure);
+    return recVM;
+  }
+
+  private _lookupMeasureIcon(measure: string | undefined): string | undefined {
+    return "water";
+  }
+  
+  private _lookupMatterIcon(matter: string | undefined): string | undefined {
+    return "wc";
   }
 
   private _buildRecordingFrom(
@@ -117,9 +187,9 @@ export class RecordMgmtComponent {
       return recordingCluster;
     }
 
-    var currentDate:Date = new Date();
-    var retStr:string  = "";
-    
+    var currentDate: Date = new Date();
+    var retStr: string = "";
+
     retStr = retStr + currentDate.getFullYear();
     retStr = retStr + currentDate.getMonth();
     retStr = retStr + currentDate.getDay();

@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {MatTableModule} from '@angular/material/table';
 
 // import { MarkdownModule } from 'ngx-markdown';
 
@@ -43,7 +44,7 @@ import { LandingPageComponent } from './c/landing-page/landing-page.component';
     MatGridListModule, MatStepperModule, MatFormFieldModule, MatInputModule, MatTreeModule,
     MatExpansionModule, MatChipsModule,
     MatProgressBarModule, MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule,
-    MatDialogModule, MatAutocompleteModule
+    MatDialogModule, MatAutocompleteModule, MatTableModule
     // ,MarkdownModule.forRoot()
   ],
   providers: [],
