@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Logger, Param, Post, Query, Headers } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AppStatusResponse, BareRecording, DiaryRecord, LoadRecordingsResponse, SaveRecordingRequest, SaveRecordingResponse } from './dto/reqres';
+import { AppStatusResponse, BareRecording, DiaryRecord, LoadAvailableClustersResponse, LoadRecordingsResponse, SaveRecordingRequest, SaveRecordingResponse } from './dto/reqres';
 import { UserprofileService } from './s/userprofile/userprofile.service';
 import { ClientPrincipal } from './e/userprofile';
 import { RecordingService } from './s/recording/recording.service';
@@ -47,6 +47,8 @@ export class AppController {
   @Get("recording")
   async loadRecordings(
     @Headers("x-ms-client-principal") base64ClientPrincipal: string,
+    @Query("matter") matter: string,
+    @Query("measure") measure: string,
     @Query("cluster") cluster: string,
     @Query("t_from") tFrom: string,
     @Query("t_to") tTo: string,
@@ -54,17 +56,34 @@ export class AppController {
   ): Promise<LoadRecordingsResponse> {
     const up: ClientPrincipal = this.userProfileService.buildClientPrincipal(base64ClientPrincipal);
     var ret: LoadRecordingsResponse = new LoadRecordingsResponse();
-    const frr = await this.diaryService.fetchRecordings(up, this._parseTopKParameter(topK))
-    ret.records = frr.map((dr:DiaryRecording) => { return this._buildResponseDTOFrom(dr); });
+    const frr = await this.diaryService.fetchRecordings(
+      up,
+      this._parseTopKParameter(topK),
+      matter,
+      measure,
+      cluster
+    );
+    ret.records = frr.map((dr: DiaryRecording) => { return this._buildResponseDTOFrom(dr); });
     ret.status = "OK";
     // ret.records = [];
     return ret;
   }
 
+  @Get("recording/clusters")
+  async loadAvailableClusters(
+    @Headers("x-ms-client-principal") base64ClientPrincipal: string
+  ): Promise<LoadAvailableClustersResponse> {
+    // const up: ClientPrincipal = this.userProfileService.buildClientPrincipal(base64ClientPrincipal);
+    var ret: LoadAvailableClustersResponse = new LoadAvailableClustersResponse();
+    ret.clusters = await this.diaryService.fetchAvailableClusters();
+    ret.status = "OK";
+    return ret;
+  }
+
   private _parseTopKParameter(topK: string): number {
     try {
-      const nr:number = parseInt(topK);
-      if(!Number.isNaN(nr)) {
+      const nr: number = parseInt(topK);
+      if (!Number.isNaN(nr)) {
         return nr;
       } else {
         return 10;
@@ -74,7 +93,6 @@ export class AppController {
       return 10;
     }
   }
-
 
   private _buildResponseDTOFrom(savedDR: DiaryRecording): DiaryRecord {
     var ret: DiaryRecord = new DiaryRecord();

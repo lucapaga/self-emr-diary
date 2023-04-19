@@ -43,16 +43,55 @@ export class RecordingService {
 
     async fetchRecordings(
         up: ClientPrincipal,
-        top_k: number = 10
+        top_k: number = 10,
+        matter?: string,
+        measure?: string,
+        cluster?: string
     ): Promise<DiaryRecording[]> {
         return new Promise((ret, rej) => {
             try {
+                var whereConditionStarted: boolean = false;
                 var qryStr: string = "SELECT TOP " + top_k + " r FROM r ";
                 if (up && up.userGUID) {
-                    qryStr = qryStr + "WHERE r.user.id = \"" + up.userGUID + "\" ";
+                    if (!whereConditionStarted) {
+                        whereConditionStarted = true;
+                        qryStr = qryStr + " WHERE";
+                    } else {
+                        qryStr = qryStr + " AND";
+                    }
+                    qryStr = qryStr + " r.user.id = \"" + up.userGUID + "\" ";
                 }
-                qryStr = qryStr + "ORDER BY r.recording.datetime DESC ";
+                if (matter) {
+                    if (!whereConditionStarted) {
+                        whereConditionStarted = true;
+                        qryStr = qryStr + " WHERE";
+                    } else {
+                        qryStr = qryStr + " AND";
+                    }
+                    qryStr = qryStr + " r.matter = \"" + matter + "\" ";
+                }
+                if (measure) {
+                    if (!whereConditionStarted) {
+                        whereConditionStarted = true;
+                        qryStr = qryStr + " WHERE";
+                    } else {
+                        qryStr = qryStr + " AND";
+                    }
+                    qryStr = qryStr + " r.measure = \"" + measure + "\" ";
+                }
+                if (cluster) {
+                    if (!whereConditionStarted) {
+                        whereConditionStarted = true;
+                        qryStr = qryStr + " WHERE";
+                    } else {
+                        qryStr = qryStr + " AND";
+                    }
+                    qryStr = qryStr + " r.cluster = \"" + cluster + "\" ";
+                }
+                qryStr = qryStr + " ORDER BY r.recording.datetime DESC ";
+
                 this.logger.debug(`Built query >${qryStr}<`);
+
                 this.cosmosContainer.items
                     .query(qryStr)
                     .fetchAll()
@@ -82,6 +121,28 @@ export class RecordingService {
             }
         });
     }
+
+    async fetchAvailableClusters(): Promise<string[]> {
+        return new Promise((ret, rej) => {
+            try {
+                var qryStr: string = "SELECT distinct c.cluster FROM c";
+
+                this.logger.debug(`Built query >${qryStr}<`);
+
+                this.cosmosContainer.items
+                    .query(qryStr)
+                    .fetchAll()
+                    .then((cosmosReturn) => {
+                        ret(cosmosReturn.resources.map((item) => { return item.cluster; }));
+                    });
+            } catch (error) {
+                this.logger.error("Unable to fetch distinct cluster values");
+                this.logger.error(error);
+                throw error
+            }
+        });
+    }
+
 
     private _buildFromCosmosDTO(
         resource: DiaryRecordingCosmosDTO,

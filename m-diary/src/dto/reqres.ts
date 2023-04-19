@@ -36,3 +36,7 @@ export class SaveRecordingResponse extends BaseResponse {
 export class LoadRecordingsResponse extends BaseResponse {
     records?: DiaryRecord[];
 }
+
+export class LoadAvailableClustersResponse extends BaseResponse {
+    clusters?:string[];
+}
