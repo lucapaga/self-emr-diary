@@ -8,12 +8,16 @@
 }
 
 .txt-registrazione {
-    width: calc(100% - 10px);
+    width: calc(70% - 10px);
+}
+
+.btn-save-recording {
+    margin-left: 10px;
 }
 
 .tbl-recordings-xt-container {
     margin-top: 20px;
-    height: calc(100vh - 300px);
+    height: calc(100vh - 400px);
     overflow: auto;
 }
 
@@ -23,4 +27,9 @@
 
 .tbl-recordings-td-align-center {
     text-align: center;
+}
+
+.txt-cluster {
+    margin-left: 15px;
+    width: calc(70% - 10px);
 }

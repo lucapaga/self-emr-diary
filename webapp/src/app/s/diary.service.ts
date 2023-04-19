@@ -35,6 +35,10 @@ class DiaryFetchRecordingResponse extends DiaryBaseResponse {
   records?: DiaryRecordDTO[];
 }
 
+class DiaryFetchAvailableClustersResponse extends DiaryBaseResponse {
+  clusters?:string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -42,9 +46,13 @@ export class DiaryService {
 
   constructor(private http: HttpClient) { }
 
-  public fetchRecordings(): Observable<DiaryRecord[]> {
+  public fetchRecordings(
+    matter?: string,
+    measure?: string,
+    cluster?: string
+  ): Observable<DiaryRecord[]> {
     return this.http.get<Observable<HttpResponse<DiaryFetchRecordingResponse>>>(
-      "/diary/recording",
+      "/diary/recording" + this._buildFetchRecordingsQueryString(matter, measure, cluster),
       {
         observe: "response"
       }
@@ -56,7 +64,7 @@ export class DiaryService {
           if (srvResp.status === "OK") {
             // ret.text = srvResp.chatResponse?.response;
             if (srvResp.records) {
-              return srvResp.records.map((aRecording) => { return this._buildFromDTO(aRecording); })  
+              return srvResp.records.map((aRecording) => { return this._buildFromDTO(aRecording); })
             } else {
               return [];
             }
@@ -73,6 +81,76 @@ export class DiaryService {
         throw err;
       })
     );
+  }
+
+  public fetchAvailableClusters(): Observable<string[]> {
+    return this.http.get<Observable<HttpResponse<DiaryFetchAvailableClustersResponse>>>(
+      "/diary/recording/clusters",
+      {
+        observe: "response"
+      }
+    ).pipe(
+      map((value) => {
+        // var ret: DiaryRecord = new DiaryRecord();
+        if (value !== undefined && value !== null && value.body !== undefined && value.body !== null) {
+          var srvResp = value.body as DiaryFetchAvailableClustersResponse;
+          if (srvResp.status === "OK") {
+            // ret.text = srvResp.chatResponse?.response;
+            if (srvResp.clusters) {
+              return srvResp.clusters;
+            } else {
+              return [];
+            }
+          } else {
+            throw new Error("Service failed getting available clusters ...");
+          }
+        } else {
+          throw new Error("Service failed getting available clusters ...");
+        }
+        // return ret;
+      }),
+      catchError((err, caught) => {
+        console.error("[DiaryService][fetchAvailableClusters] Caught an error!", err);
+        throw err;
+      })
+    );
+  }
+
+  private _buildFetchRecordingsQueryString(
+    matter?: string,
+    measure?: string,
+    cluster?: string
+  ): string {
+    var retStr: string = "";
+    var isFirstParameter: boolean = true;
+    if (matter) {
+      if (isFirstParameter) {
+        isFirstParameter = false;
+        retStr = retStr + "?";
+      } else {
+        retStr = retStr + "&";
+      }
+      retStr = retStr + "matter=" + matter;
+    }
+    if (measure) {
+      if (isFirstParameter) {
+        isFirstParameter = false;
+        retStr = retStr + "?";
+      } else {
+        retStr = retStr + "&";
+      }
+      retStr = retStr + "measure=" + measure;
+    }
+    if (cluster) {
+      if (isFirstParameter) {
+        isFirstParameter = false;
+        retStr = retStr + "?";
+      } else {
+        retStr = retStr + "&";
+      }
+      retStr = retStr + "cluster=" + cluster;
+    }
+    return retStr;
   }
 
   public saveRecording(recording: DiaryRecord): Observable<DiaryRecord> {

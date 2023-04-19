@@ -3,6 +3,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 
+import { format } from 'date-fns';
+
 import { BareRecording, DiaryRecord } from '../../e/diary';
 import { ConfigurationsService } from '../../s/configurations.service';
 import { DiaryService } from '../../s/diary.service';
@@ -24,13 +26,19 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
   public recordingMeasure: string = "Volume";
   public recordingValue?: string;
 
+  public selectedCluster?: string;
+  public availableClusters?: string[];
+
   public executingSaveRecording: boolean = false;
+  public fetchingRecordings: boolean = false;
 
   public tblRecordingsColumns: string[] = ["datetime", "matter", "measure", "value"];
   public tblRecordingsDataSource = new MatTableDataSource<DiaryRecordViewModel>([]);
   public tblRecordingsList: DiaryRecordViewModel[] = [];
   // @ViewChild(MatPaginator) tblRecordingsPaginator: MatPaginator;
 
+  public chkUseSelectorAsFilters: boolean = true;
+  public chkFilterPerCluster: boolean = false;
 
   constructor(
     private readonly configuService: ConfigurationsService,
@@ -39,16 +47,32 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
   ) { }
 
   async ngOnInit() {
+    this.selectedCluster = this._calculateProperCluster();
+    this.availableClusters = [this.selectedCluster];
+    this.diaryService.fetchAvailableClusters().subscribe((clusters: string[]) => {
+      this.availableClusters?.push(...clusters.filter((aCluster) => { return aCluster !== this.selectedCluster }));
+    });
+    this.doFetchRecordings();
+  }
+
+  async doFetchRecordings() {
     try {
+      this.fetchingRecordings = true;
+      const qMatter: string | undefined = (this.chkUseSelectorAsFilters === true) ? this.recordingMatter : undefined;
+      const qMeasure: string | undefined = (this.chkUseSelectorAsFilters === true) ? this.recordingMeasure : undefined;
+      const qCluster: string | undefined = (this.chkFilterPerCluster === true) ? this.selectedCluster : undefined;
+
       this.diaryService
-        .fetchRecordings()
+        .fetchRecordings(qMatter, qMeasure, qCluster)
         .subscribe((lRecordings: DiaryRecord[]) => {
           // this._updateRecordingTable(savedRecording);
           this.tblRecordingsList = lRecordings.map((aRec) => { return this._buildDiaryRecordViewModelFrom(aRec) });
           this.tblRecordingsDataSource.data = this.tblRecordingsList;
+          this.fetchingRecordings = false;
         });
     } catch (error) {
       console.error("Unable to load saved recordings");
+      this.fetchingRecordings = false;
       this.snackBarRef.open(
         'Non sono riuscito a caricare le registrazioni',
         undefined,
@@ -82,6 +106,10 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
       default:
         break;
     }
+
+    if (this.chkUseSelectorAsFilters) {
+      this.doFetchRecordings();
+    }
   }
 
   public onMeasureChange(): void {
@@ -108,6 +136,10 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
         break;
       default:
         break;
+    }
+
+    if (this.chkUseSelectorAsFilters) {
+      this.doFetchRecordings();
     }
   }
 
@@ -174,10 +206,25 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
   }
 
   private _lookupMeasureIcon(measure: string | undefined): string | undefined {
-    return "water";
+    switch (measure) {
+      case "Temperatura":
+        return "thermostat";
+      case "Volume":
+        return "water";
+      default:
+        return "water";
+    }
   }
 
   private _lookupMatterIcon(matter: string | undefined): string | undefined {
+    switch (matter) {
+      case "Parametri Corporei":
+        return "accessibility_new";
+      case "Urine":
+        return "wc";
+      default:
+        return "wc";
+    }
     return "wc";
   }
 
@@ -202,19 +249,20 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
   }
 
   private _calculateProperCluster(
-    recordingCluster: string | undefined
-  ): string | undefined {
+    recordingCluster?: string
+  ): string {
     if (recordingCluster) {
       return recordingCluster;
     }
 
-    var currentDate: Date = new Date();
-    var retStr: string = "";
+    const currentDate: Date = new Date();
+    var ret: string = format(currentDate, "yyyyMMdd") + ".";
+    if (currentDate.getHours() < 17 && currentDate.getHours() >= 8) {
+      ret = ret + "08-17";
+    } else {
+      ret = ret + "17-08";
+    }
 
-    retStr = retStr + currentDate.getFullYear();
-    retStr = retStr + currentDate.getMonth();
-    retStr = retStr + currentDate.getDay();
-
-    return retStr;
+    return ret;
   }
 }
