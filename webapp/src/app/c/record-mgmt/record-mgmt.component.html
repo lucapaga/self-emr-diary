@@ -103,7 +103,8 @@
         <ng-container matColumnDef="datetime">
             <th mat-header-cell *matHeaderCellDef class="tbl-recordings-td-align-center">Ora</th>
             <td mat-cell *matCellDef="let element" class="tbl-recordings-td-align-right">
-                {{element.diaryRecord.recording.datetime | date:'shortTime'}}
+                <!-- date:'shortTime' -->
+                {{element.diaryRecord.recording.datetime | date:'dd/MM - HH:mm'}}
             </td>
             <td mat-footer-cell *matFooterCellDef></td>
         </ng-container>

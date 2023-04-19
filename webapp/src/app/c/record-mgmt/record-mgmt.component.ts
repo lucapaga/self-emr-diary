@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 
 import { BareRecording, DiaryRecord } from '../../e/diary';
 import { ConfigurationsService } from '../../s/configurations.service';
@@ -98,7 +98,7 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
         }
         break;
       case "Parametri Corporei":
-        this.dwnMeasureOptions = ["Temperatura"];
+        this.dwnMeasureOptions = ["Temperatura", "Peso"];
         if (!this.recordingMeasure) {
           this.recordingMeasure = "Temperatura";
         }
@@ -122,6 +122,7 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
             this.dwnRecordingOptions = ["200", "250", "300", "350", "400", "450", "500"];
             break;
           default:
+            this.dwnRecordingOptions = [];
             break;
         }
         break;
@@ -131,6 +132,7 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
             this.dwnRecordingOptions = [];
             break;
           default:
+            this.dwnRecordingOptions = [];
             break;
         }
         break;
@@ -211,8 +213,10 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
         return "thermostat";
       case "Volume":
         return "water";
+      case "Peso":
+        return "monitor_weight";
       default:
-        return "water";
+        return "device_unknown";
     }
   }
 
@@ -223,9 +227,8 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
       case "Urine":
         return "wc";
       default:
-        return "wc";
+        return "device_unknown";
     }
-    return "wc";
   }
 
   private _buildRecordingFrom(
@@ -260,6 +263,9 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
     if (currentDate.getHours() < 17 && currentDate.getHours() >= 8) {
       ret = ret + "08-17";
     } else {
+      if (currentDate.getHours() < 8) {
+        ret = format(subDays(currentDate, 1), "yyyyMMdd") + ".";
+      }
       ret = ret + "17-08";
     }
 
