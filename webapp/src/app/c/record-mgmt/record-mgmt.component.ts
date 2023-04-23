@@ -41,7 +41,7 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
   public chkFilterPerCluster: boolean = false;
 
   constructor(
-    private readonly configuService: ConfigurationsService,
+    private readonly configService: ConfigurationsService,
     private readonly diaryService: DiaryService,
     private snackBarRef: MatSnackBar
   ) { }
@@ -53,9 +53,14 @@ export class RecordMgmtComponent implements AfterViewInit, OnInit {
       this.availableClusters?.push(...clusters.filter((aCluster) => { return aCluster !== this.selectedCluster }));
     });
     this.doFetchRecordings();
+    this.initConfigurations();
   }
 
-  async doFetchRecordings() {
+  private initConfigurations() {
+    this.configService.refreshConfigurations();
+  }
+
+  private async doFetchRecordings() {
     try {
       this.fetchingRecordings = true;
       const qMatter: string | undefined = (this.chkUseSelectorAsFilters === true) ? this.recordingMatter : undefined;
