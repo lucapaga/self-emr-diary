@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+
 import { ConfigurationData } from '../e/configurations';
+import { differenceInSeconds } from 'date-fns';
 
 @Injectable({
   providedIn: 'root'
@@ -7,23 +10,55 @@ import { ConfigurationData } from '../e/configurations';
 export class ConfigurationsService {
 
   constructor(
-    private lastRefresh: Date,
-    private configurationIndex: Map<string, ConfigurationData[]>
+    private lastRefresh: Date = new Date(),
+    private configurationIndex: Map<string, ConfigurationData[]> = new Map(),
+    private minimumRefreshPeriodThreshold: number = 10
   ) { }
 
-  refreshConfigurations() {
-    this.configurationIndex = this._mockConfigurations();
+  refreshConfigurations(): Observable<boolean> {
+    if (differenceInSeconds(new Date(), this.lastRefresh) > this.minimumRefreshPeriodThreshold) {
+      this.lastRefresh = new Date();
+      this.configurationIndex = this._mockConfigurations();
+    }
+    return of(true);
   }
 
-  getConfigurations(configTableName: string): ConfigurationData[] {
-    var ret: ConfigurationData[] | undefined = this.configurationIndex.get(configTableName);
+  private async _safeGetConfz(): Promise<Map<string, ConfigurationData[]>> {
+    const p: Promise<boolean> = new Promise((ret, rej) => {
+      this.refreshConfigurations().subscribe((result) => {
+        ret(result);
+      });
+    });
+    await p;
+    return this.configurationIndex;
+  }
+
+  async getConfiguration(
+    configTableName: string,
+    drivingConfigTableName?: string,
+    drivingValue?: string
+  ): Promise<ConfigurationData[]> {
+    var ret: ConfigurationData[] | undefined = (await this._safeGetConfz()).get(configTableName);
     if (ret === undefined) {
       return [];
     }
-    return ret;
+
+    if (drivingConfigTableName && drivingValue) {
+      return ret.filter((aCD) => {
+        return (aCD
+          && aCD.binding
+          && aCD.binding.length > 0
+          && aCD.binding.filter((aBinding) => {
+            return aBinding.key === drivingConfigTableName && aBinding.value === drivingValue
+          }).length > 0)
+      });
+    }
+    else {
+      return ret;
+    }
   }
-  
-  private _mockConfigurations():Map<string, ConfigurationData[]> {
+
+  private _mockConfigurations(): Map<string, ConfigurationData[]> {
     var ret = new Map();
     ret.set("matter", [
       { key: "matter", value: "Urine", icon: "wc" },
